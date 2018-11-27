@@ -1,18 +1,18 @@
 from flask import render_template, redirect, url_for, Flask, make_response, jsonify, abort, request
-from peewee import *
 import uuid
-import peewee
 from passlib.hash import pbkdf2_sha256
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Email, Length
 from flask_bootstrap import Bootstrap
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-sqlite_db = SqliteDatabase('backenddb/backend.sqlite')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/unatart/pdf2txt_proj/backenddb/backend.sqlite'
 app.config.from_object('config')
 bootstrap = Bootstrap(app)
+db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -38,30 +38,16 @@ class RegisterForm(FlaskForm):
     password = PasswordField('password', validators=[InputRequired(), Length(min=6, max=20)])
 
 
-def init_tables():
-    with sqlite_db:
-        sqlite_db.create_tables([User], safe=True)
-
-
-def drop_tables():
-    sqlite_db.drop_tables([User])
-
-
-class BaseModel(Model):
-    class Meta:
-        database = sqlite_db
-
-
-class User(UserMixin, BaseModel):
-    id = IntegerField(primary_key=True)
-    username = CharField(unique=True)
-    email = CharField(unique=True)
-    password = CharField()
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(15), unique=True)
+    email = db.Column(db.String(50), unique=True)
+    password = db.Column(db.String(80))
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(int(user_id))
+    return User.query.get(user_id)
 
 
 @app.route('/')
@@ -73,38 +59,32 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+
     if form.validate_on_submit():
-        try:
-            with sqlite_db.atomic():
-                user = User.get(User.username == form.username.data)
-                if pbkdf2_sha256.verify(form.password.data, user.password):
-                    login_user(user, remember=form.remember.data)
-                    return redirect(url_for('board'))
-                return '<h1> Invalid username or password </h1>'
-        except peewee.IntegrityError:
-            abort(400)
-        except User.DoesNotExist:
-            return '<h1> Invalid username or password </h1>'
-    return render_template('login.html',
-                           form=form)
+        user = User.query.filter_by(username=form.username.data).first()
+        if user:
+            if pbkdf2_sha256.verify(form.password.data, user.password):
+                login_user(user, remember=form.remember.data)
+                return redirect(url_for('board'))
+
+        return '<h1>Invalid username or password</h1>'
+
+    return render_template('login.html', form=form)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     form = RegisterForm()
+
     if form.validate_on_submit():
-        try:
-            with sqlite_db.atomic():
-                new_user = User()
-                new_user.username = form.username.data
-                new_user.password = generate_password_hash(form.password.data)
-                new_user.email = form.email.data
-                new_user.save()
-                redirect(url_for('board'))
-        except peewee.IntegrityError:
-            abort(400)
-    return render_template('signup.html',
-                           form=form)
+        hashed_password = generate_password_hash(form.password.data)
+        new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        return '<h1>New user has been created!</h1>'
+
+    return render_template('signup.html', form=form)
 
 
 @app.route('/board')
