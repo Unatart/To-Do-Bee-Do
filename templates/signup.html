@@ -17,6 +17,7 @@
     {{ render_field(form.username, placeholder=form.username.label.text) }}
     {{ render_field(form.email, placeholder=form.email.label.text) }}
     {{ render_field(form.password, placeholder=form.password.label.text) }}
+    <h6 style="color:red">{{ error }}</h6>
   <button class="btn btn-lg btn-primary btn-block" type="submit">Sign up</button>
 </form>
 {% endblock %}

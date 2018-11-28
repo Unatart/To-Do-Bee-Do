@@ -40,12 +40,15 @@ def signup():
     form = RegisterForm()
 
     if form.validate_on_submit():
-        hashed_password = generate_password_hash(form.password.data)
-        new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        session['id'] = new_user.id
-        login_user(new_user, remember=False)
+        if User.query.filter_by(username=form.username.data) is None:
+            hashed_password = generate_password_hash(form.password.data)
+            new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+            db.session.add(new_user)
+            db.session.commit()
+            session['id'] = new_user.id
+            login_user(new_user, remember=False)
+        else :
+            return render_template('signup.html', error='User exist', form=form)
         return redirect(url_for('board'))
     return render_template('signup.html', form=form)
 
