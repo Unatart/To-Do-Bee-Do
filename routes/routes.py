@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, request
 from passlib.hash import pbkdf2_sha256
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 
 from forms import LoginForm, RegisterForm
 from config import app, db
@@ -21,7 +21,7 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(_username=form.username.data).first()
+        user = User.query.filter_by(username=form.username.data).first()
         if user:
                 if pbkdf2_sha256.verify(form.password.data, user.password):
                     login_user(user, remember=form.remember.data)
@@ -38,7 +38,7 @@ def signup():
 
     if form.validate_on_submit():
         hashed_password = generate_password_hash(form.password.data)
-        new_user = User(_username=form.username.data, _email=form.email.data, password=hashed_password)
+        new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user, remember=False)
@@ -49,11 +49,11 @@ def signup():
 # FOR TODOLIST
 @app.route('/add', methods=['POST'])
 def add():
-    new_todo = Todo()
-    new_todo.text = request.form['todoitem']
-    new_todo.complete = False
-    db.session.add(new_todo)
-    db.session.commit()
+    user = User.query.filter_by(id=id).first()
+    if user == current_user:
+        new_todo = Todo(text=request.form['todoitem'], complete=False, creator_id=user.id)
+        db.session.add(new_todo)
+        db.session.commit()
 
     return redirect(url_for('board'))
 
