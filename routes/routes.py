@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, request
+from flask import render_template, redirect, url_for, request, session
 from passlib.hash import pbkdf2_sha256
 from flask_login import login_user, login_required, logout_user, current_user
 
@@ -25,6 +25,7 @@ def login():
         if user:
                 if pbkdf2_sha256.verify(form.password.data, user.password):
                     login_user(user, remember=form.remember.data)
+                    session['id'] = user.id
                     return redirect(url_for('board'))
         elif user is None:
             return render_template('login.html', error='Invalid data', form=form)
@@ -41,6 +42,7 @@ def signup():
         new_user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
+        session['id'] = new_user.id
         login_user(new_user, remember=False)
         return redirect(url_for('board'))
     return render_template('signup.html', form=form)
@@ -49,20 +51,26 @@ def signup():
 # FOR TODOLIST
 @app.route('/add', methods=['POST'])
 def add():
-    user = User.query.filter_by(id=id).first()
-    if user == current_user:
-        new_todo = Todo(text=request.form['todoitem'], complete=False, creator_id=user.id)
-        db.session.add(new_todo)
-        db.session.commit()
+    if 'id' in session:
+        id = session['id']
+        user = User.query.filter_by(id=id).first()
+        if user == current_user:
+            new_todo = Todo(text=request.form['todoitem'], complete=False, creator_id=user.id)
+            db.session.add(new_todo)
+            db.session.commit()
 
     return redirect(url_for('board'))
 
 
 @app.route('/complete/<id>')
 def complete(id):
-    todo = Todo.query.filter_by(id=int(id)).first()
-    todo.complete = True
-    db.session.commit()
+    if 'id' in session:
+        user_id = session['id']
+        user = User.query.filter_by(id=user_id).first()
+        if user == current_user:
+            todo = Todo.query.filter_by(id=int(id)).first()
+            todo.complete = True
+            db.session.commit()
 
     return redirect(url_for('board'))
 
@@ -70,8 +78,12 @@ def complete(id):
 @app.route('/board')
 @login_required
 def board():
-    incomplete = Todo.query.filter_by(complete=False).all()
-    complete = Todo.query.filter_by(complete=True).all()
+    if 'id' in session:
+        user_id = session['id']
+        user = User.query.filter_by(id=user_id).first()
+        if user == current_user:
+            incomplete = Todo.query.filter_by(creator_id=user_id, complete=False).all()
+            complete = Todo.query.filter_by(creator_id=user_id, complete=True).all()
     return render_template('board.html', incomplete=incomplete, complete=complete, title='Board')
 
 
