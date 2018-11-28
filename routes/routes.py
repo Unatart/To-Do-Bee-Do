@@ -75,6 +75,18 @@ def complete(id):
     return redirect(url_for('board'))
 
 
+@app.route('/delete/<id>')
+def delete(id):
+    if 'id' in session:
+        user_id = session['id']
+        user = User.query.filter_by(id=user_id).first()
+        if user == current_user:
+            Todo.query.filter_by(id=id).delete()
+            db.session.commit()
+
+    return redirect(url_for('board'))
+
+
 @app.route('/board')
 @login_required
 def board():
