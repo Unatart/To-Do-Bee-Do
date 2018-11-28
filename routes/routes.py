@@ -11,8 +11,10 @@ from utils import generate_password_hash
 # START APP
 @app.route('/')
 def index():
-    return render_template("index.html",
-                           title='Home')
+    if 'id' in session:
+        return redirect(url_for('board'))
+
+    return render_template("index.html", title='Home')
 
 
 # AUTH METHODS
@@ -24,11 +26,11 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
                 if pbkdf2_sha256.verify(form.password.data, user.password):
-                    login_user(user, remember=form.remember.data)
+                    login_user(user, remember=True)
                     session['id'] = user.id
                     return redirect(url_for('board'))
         elif user is None:
-            return render_template('login.html', error='Invalid data', form=form)
+            return render_template('login.html', error='Invalid data, try again or SignUp', form=form)
 
     return render_template('login.html', form=form)
 
@@ -55,9 +57,11 @@ def add():
         id = session['id']
         user = User.query.filter_by(id=id).first()
         if user == current_user:
-            new_todo = Todo(text=request.form['todoitem'], complete=False, creator_id=user.id)
-            db.session.add(new_todo)
-            db.session.commit()
+            if request.form['todoitem'] is not '':
+                print(request.form['todoitem'])
+                new_todo = Todo(text=request.form['todoitem'], complete=False, creator_id=user.id)
+                db.session.add(new_todo)
+                db.session.commit()
 
     return redirect(url_for('board'))
 
@@ -70,6 +74,19 @@ def complete(id):
         if user == current_user:
             todo = Todo.query.filter_by(id=int(id)).first()
             todo.complete = True
+            db.session.commit()
+
+    return redirect(url_for('board'))
+
+
+@app.route('/incomplete/<id>')
+def incomplete(id):
+    if 'id' in session:
+        user_id = session['id']
+        user = User.query.filter_by(id=user_id).first()
+        if user == current_user:
+            todo = Todo.query.filter_by(id=int(id)).first()
+            todo.complete = False
             db.session.commit()
 
     return redirect(url_for('board'))
@@ -96,6 +113,7 @@ def board():
         if user == current_user:
             incomplete = Todo.query.filter_by(creator_id=user_id, complete=False).all()
             complete = Todo.query.filter_by(creator_id=user_id, complete=True).all()
+    else: return redirect(url_for('index'))
     return render_template('board.html', incomplete=incomplete, complete=complete, title='Board')
 
 

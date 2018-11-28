@@ -11,27 +11,27 @@
 {% endblock %}
 
 {% block body_content %}
-
-<h1>Todo List</h1>
-<div>Add a new todo item:
-    <form action="{{ url_for('add') }}" method="POST">
-        <input type="text" name="todoitem">
-        <input type="submit" value="Add Item">
-    </form>
-</div>
-<div>
-    <h2>Incomplete Items</h2>
-    <ul>
-        {% for todo in incomplete %}
-        <li style="font-size: 30pt">{{ todo.text }} <a href="{{ url_for('complete', id=todo.id) }}">Mark As Complete</a><a href="{{ url_for('delete', id=todo.id) }}">Delete</a></li>
-        {% endfor %}
-    </ul>
-    <h2>Completed Items</h2>
-    <ul>
-        {% for todo in complete %}
-        <li style="font-size: 30pt">{{ todo.text }} <a href="{{ url_for('delete', id=todo.id) }}">Delete</a></li>
-        {% endfor %}
-    </ul>
+<div class="container-center">
+    <div>Add a new todo item:
+        <form action="{{ url_for('add') }}" method="POST">
+            <input class="inp_todo" type="text" name="todoitem">
+            <input class="add_todo" type="submit" value="+">
+        </form>
+    </div>
+    <div class="container-list">
+        <h2>Incomplete Items</h2>
+        <ul>
+            {% for todo in incomplete %}
+            <li class="todo">{{ todo.text }} <a title="Mark as complete" class="mark" href="{{ url_for('complete', id=todo.id) }}">✔</a><a title="Delete" class="mark" href="{{ url_for('delete', id=todo.id) }}">✗</a></li>
+            {% endfor %}
+        </ul>
+        <h2>Completed Items</h2>
+        <ul>
+            {% for todo in complete %}
+            <li class="todo">{{ todo.text }} <a title="Mark as incomplete" class="mark" href="{{ url_for('incomplete', id=todo.id) }}">^</a><a title="Delete" class="mark" href="{{ url_for('delete', id=todo.id) }}">✗</a></li>
+            {% endfor %}
+        </ul>
+    </div>
 </div>
 
 {% endblock %}

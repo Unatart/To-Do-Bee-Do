@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_render_field_.html" import render_field, render_radio_fields %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% block header_content %}
 <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -11,12 +12,11 @@
 {% endblock %}
 {% block body_content %}
 <form class="form-signin text-center" method="POST" action="/login">
-  <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+  <h1 class="h3 mb-3 font-weight-normal" style="color:#fff">Please sign in</h1>
     {{ form.hidden_tag() }}
-    {{ wtf.form_field(form.username) }}
-    {{ wtf.form_field(form.password) }}
-    {{ wtf.form_field(form.remember) }}
-    {{ error }}
+    {{ render_field(form.username, placeholder=form.username.label.text) }}
+    {{ render_field(form.password, placeholder=form.password.label.text) }}
+    <h6 style="color:red">{{ error }}</h6>
   <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
 </form>
 {% endblock %}

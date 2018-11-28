@@ -12,3 +12,10 @@
   </ul>
 </div>
 {% endblock %}
+{% block body_content %}
+<div class="container-center">
+    <h1>Welcome!</h1>
+    <h3>Want to make todo?</h3>
+    <a class="welcome-link" href="{{ url_for('signup') }}">Sign up<span class="sr-only">(current)</span></a> | <a class="welcome-link" href="{{ url_for('login') }}">Sign in <span class="sr-only">(current)</span></a>
+</div>
+{% endblock %}
