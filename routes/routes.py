@@ -1,9 +1,11 @@
-from flask import render_template, redirect, url_for, request, session
+from flask import render_template, redirect, url_for, request, session, abort
 from flask_login import login_user, login_required, logout_user, current_user
-from forms import LoginForm, RegisterForm
+from flask_api import status
 from config import app
 from DBmanager.DBmanager import *
 import sqlalchemy.exc
+from forms import RegisterForm
+from valid_forms.valid_forms import valid_login
 
 
 # START APP
@@ -18,22 +20,22 @@ def index():
 # AUTH METHODS
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
+    status_code, username, password, form = valid_login()
 
-    if form.validate_on_submit():
+    if status_code == 200:
         try:
-            user, status_code = db_manager.login(form.username.data, form.password.data)
+            user, status_code = db_manager.login(username, password)
             if status_code == 200:
                 login_user(user, remember=True)
                 session['id'] = user.id
                 return redirect(url_for('board'))
             elif status_code == 403:
-                return render_template('login.html', error='Invalid data, try again or SignUp', form=form)
+                return render_template('login.html', error='Invalid data, try again or SignUp', form=form), status.HTTP_403_FORBIDDEN
 
         except sqlalchemy.exc.SQLAlchemyError:
-            return 500
+            abort(500)
 
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form), status.HTTP_400_BAD_REQUEST
 
 
 @app.route('/signup', methods=['GET', 'POST'])

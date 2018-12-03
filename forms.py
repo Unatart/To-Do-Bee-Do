@@ -9,15 +9,15 @@ USERNAME_REGEX = re.compile(r'^\S+$')
 
 
 class LoginForm(FlaskForm):
-    username = StringField('username', validators=[InputRequired(), Length(min=4, max=25)])
-    password = PasswordField('password', validators=[InputRequired(), Length(min=6, max=20)])
+    username = StringField('username', validators=[InputRequired(), Length(min=4, max=20)])
+    password = PasswordField('password', validators=[InputRequired(), Length(min=4, max=20)])
     remember = BooleanField('remember me')
 
 
 class RegisterForm(FlaskForm):
     email = StringField('email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=50)])
     username = StringField('username', validators=[InputRequired(),
-                                                   Length(min=4, max=25),
+                                                   Length(min=4, max=20),
                                                    Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
                                                           'Usernames must have only letters, '
                                                           'numbers, dots or underscores')])

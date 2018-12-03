@@ -1,8 +1,10 @@
 from models.models import User, Todo
-from config import login_manager
 from config import db
-from utils import generate_password_hash
 from passlib.hash import pbkdf2_sha256
+
+
+def generate_password_hash(password):
+    return pbkdf2_sha256.encrypt(password, rounds=200000, salt_size=16)
 
 
 class DBmanager:
