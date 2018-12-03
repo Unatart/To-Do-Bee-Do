@@ -1,5 +1,4 @@
 from flask_login import UserMixin
-from sqlalchemy import ForeignKey
 from config import login_manager
 from config import db
 

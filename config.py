@@ -8,7 +8,7 @@ SECRET_KEY = 'you-will-never-guess'
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/unatart/pdf2txt_proj/backenddb/backend.sqlite'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/unatart/TodoList/backenddb/backend.sqlite'
 app.config.from_object('config')
 
 bootstrap = Bootstrap(app)
