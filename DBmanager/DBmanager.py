@@ -1,6 +1,7 @@
 from models.models import User, Todo
 from config import db
 from passlib.hash import pbkdf2_sha256
+from flask_login import login_user
 
 
 def generate_password_hash(password):
@@ -11,24 +12,32 @@ class DBmanager:
     # 409 - Conflict, 201 - Created
     def create_user(self, init_login, init_email, init_password):
         if User.query.filter_by(username=init_login).first():
-            return "", 409, "login"
+            return "", "", "", "", 409, "login"
         if User.query.filter_by(email=init_email).first():
-            return "", 409, "email"
+            return "", "", "", "", 409, "email"
         hashed_password = generate_password_hash(init_password)
-        new_user = User(username=init_login, email=init_email, password=hashed_password)
+        new_user = User(username=init_login,
+                        email=init_email,
+                        password=hashed_password)
         db.session.add(new_user)
         db.session.commit()
+        login_user(new_user, remember=False)
 
-        return new_user, 201, ""
+        return new_user.username, new_user.email, new_user.password, new_user.id, 201, ""
 
 
-    # 403 - Forbidden, 200 - OK
+    # 401, 200
     def login(self, init_login, init_password):
         user = User.query.filter_by(username=init_login).first()
         if user and pbkdf2_sha256.verify(init_password, user.password):
-                    return user, 200
+            login_user(user, remember=True)
+            return user.username, user.password, user.id, 200
+        user = User.query.filter_by(email=init_login).first()
+        if user and pbkdf2_sha256.verify(init_password, user.password):
+            login_user(user, remember=True)
+            return user.username, user.password, user.id, 200
 
-        return "", 403
+        return "", "", "", 401
 
     def check_user(self, init_id):
         user = User.query.filter_by(id=init_id).first()

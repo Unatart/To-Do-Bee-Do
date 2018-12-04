@@ -1,11 +1,10 @@
 from flask import render_template, redirect, url_for, request, session, abort
-from flask_login import login_user, login_required, logout_user, current_user
+from flask_login import login_required, logout_user, current_user
 from flask_api import status
 from config import app
 from DBmanager.DBmanager import *
 import sqlalchemy.exc
-from forms import RegisterForm
-from valid_forms.valid_forms import valid_login
+from valid_forms.valid_forms import valid_login, valid_signup
 
 
 # START APP
@@ -24,42 +23,43 @@ def login():
 
     if status_code == 200:
         try:
-            user, status_code = db_manager.login(username, password)
+            username, password, id, status_code = db_manager.login(username, password)
             if status_code == 200:
-                login_user(user, remember=True)
-                session['id'] = user.id
-                return redirect(url_for('board'))
-            elif status_code == 403:
-                return render_template('login.html', error='Invalid data, try again or SignUp', form=form), status.HTTP_403_FORBIDDEN
+                session['id'] = id
+                return redirect(url_for('board')), status.HTTP_200_OK
+            elif status_code == 401:
+                return render_template('login.html', error='Invalid data, try again or SignUp',
+                                       form=form), status.HTTP_401_UNAUTHORIZED
 
         except sqlalchemy.exc.SQLAlchemyError:
             abort(500)
 
-    return render_template('login.html', form=form), status.HTTP_400_BAD_REQUEST
+    return render_template('login.html', form=form), status.HTTP_401_UNAUTHORIZED
 
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    form = RegisterForm()
+    status_code, username, email, password, form = valid_signup()
 
-    if form.validate_on_submit():
+    if status_code == 200:
         try:
-            new_user, status_code, error_identity = db_manager.create_user(form.username.data, form.email.data,
-                                                                         form.password.data)
+            username, email, password, id, status_code, error_identity = \
+                db_manager.create_user(username, email, password)
             if status_code == 409:
                 if error_identity == 'login':
-                    return render_template('signup.html', form=form, error='User with such username exist')
+                    return render_template('signup.html', form=form,
+                                           error='User with such username exist'), status.HTTP_409_CONFLICT
                 if error_identity == 'email':
-                    return render_template('signup.html', form=form, error='User with such email exist')
+                    return render_template('signup.html', form=form,
+                                           error='User with such email exist'), status.HTTP_409_CONFLICT
             else:
-                session['id'] = new_user.id
-                login_user(new_user, remember=False)
-                return redirect(url_for('board'))
+                session['id'] = id
+                return redirect(url_for('board')), status.HTTP_200_OK
 
         except sqlalchemy.exc.SQLAlchemyError:
             return 500
 
-    return render_template('signup.html', form=form)
+    return render_template('signup.html', form=form), status.HTTP_400_BAD_REQUEST
 
 
 # FOR TODOLIST

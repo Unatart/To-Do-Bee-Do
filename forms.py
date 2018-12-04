@@ -22,7 +22,7 @@ class RegisterForm(FlaskForm):
                                                           'Usernames must have only letters, '
                                                           'numbers, dots or underscores')])
     # password = PasswordField('password', validators=[InputRequired(), Length(min=6, max=20)])
-    password = PasswordField('password', validators=[InputRequired()])
+    password = PasswordField('password', validators=[InputRequired(), Length(min=4, max=20)])
 
 
 def validate_email(self, field):
