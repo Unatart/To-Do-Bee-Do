@@ -1,5 +1,4 @@
 from flask import render_template, redirect, url_for, request, session, abort
-from flask_login import login_required, logout_user, current_user
 from flask_api import status
 from config import app
 from DBmanager.DBmanager import *
@@ -10,9 +9,6 @@ from get_forms.get_forms import get_login, get_signup
 # START APP
 @app.route('/')
 def index():
-    if 'id' in session:
-        return redirect(url_for('board'))
-
     return render_template("index.html", title='Home')
 
 
@@ -42,7 +38,6 @@ def signup():
     status_code, username, email, password, form = get_signup()
 
     if status_code == 200:
-        try:
             username, email, password, id, status_code, error_identity = \
                 db_manager.create_user(username, email, password)
             if status_code == 409:
@@ -59,9 +54,6 @@ def signup():
                 session['id'] = id
                 return redirect(url_for('board'))
 
-        except sqlalchemy.exc.SQLAlchemyError:
-            return 500
-
     return render_template('signup.html', form=form), status.HTTP_200_OK
 
 
@@ -72,7 +64,7 @@ def add():
         if 'id' in session:
             id = session['id']
             user, status_code = db_manager.check_user(id)
-            if status_code == 200 and user == current_user:
+            if status_code == 200:
                 todo_text = request.form['todoitem']
                 if todo_text is not '':
                     db_manager.create_todo(todo_text, user.id)
@@ -89,7 +81,7 @@ def complete(id):
         if 'id' in session:
             user_id = session['id']
             user, status_code = db_manager.check_user(user_id)
-            if status_code == 200 and user == current_user:
+            if status_code == 200:
                 db_manager.complete_todo(id)
 
     except sqlalchemy.exc.SQLAlchemyError:
@@ -104,7 +96,7 @@ def incomplete(id):
         if 'id' in session:
             user_id = session['id']
             user, status_code = db_manager.check_user(user_id)
-            if status_code == 200 and user == current_user:
+            if status_code == 200:
                 db_manager.incomplete_todo(id)
     except sqlalchemy.exc.SQLAlchemyError:
         return 500
@@ -118,7 +110,7 @@ def delete(id):
         if 'id' in session:
             user_id = session['id']
             user, status_code = db_manager.check_user(user_id)
-            if status_code == 200 and user == current_user:
+            if status_code == 200:
                 db_manager.delete_todo(id)
 
     except sqlalchemy.exc.SQLAlchemyError:
@@ -128,26 +120,22 @@ def delete(id):
 
 
 @app.route('/board')
-@login_required
+# @login_required
 def board():
-    try:
-        if 'id' in session:
-            user_id = session['id']
-            user, status_code = db_manager.check_user(user_id)
-            if status_code == 200 and user == current_user:
-                incomplete, complete = db_manager.get_todo(user_id)
-        else:
-            return redirect(url_for('index'))
-
-    except sqlalchemy.exc.SQLAlchemyError:
-        return 500
+    incomplete = ""
+    complete = ""
+    if 'id' in session:
+        user_id = session['id']
+        user, status_code = db_manager.check_user(user_id)
+        if status_code == 200:
+            incomplete, complete = db_manager.get_todo(user_id)
+    else:
+        return redirect(url_for('index'))
 
     return render_template('board.html', incomplete=incomplete, complete=complete, title='Board')
 
 
 # LOGOUT
 @app.route('/logout')
-@login_required
 def logout():
-    logout_user()
     return redirect(url_for('index'))

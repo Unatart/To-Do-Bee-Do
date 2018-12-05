@@ -14,12 +14,14 @@ class DBmanager:
     def create_user(self, init_login, init_email, init_password):
         if Validator.validate_password(init_password) == True :
 
-            if Validator.validate_username(init_login) == True and \
-                    User.query.filter_by(username=init_login).first():
+            if Validator.validate_username(init_login) == False:
+                return "", "", "", "", 409, "login"
+            if User.query.filter_by(username=init_login).first():
                 return "", "", "", "", 409, "login"
 
-            if Validator.validate_email(init_email) == True and \
-                User.query.filter_by(email=init_email).first():
+            if Validator.validate_email(init_email) == False:
+                return "", "", "", "", 409, "email"
+            if User.query.filter_by(email=init_email).first():
                 return "", "", "", "", 409, "email"
 
             hashed_password = generate_password_hash(init_password)
@@ -28,7 +30,7 @@ class DBmanager:
                             password=hashed_password)
             db.session.add(new_user)
             db.session.commit()
-            login_user(new_user, remember=False)
+            # login_user(new_user, remember=False)
 
         else:
             return "", "", "", "", 409, "password"
@@ -41,13 +43,11 @@ class DBmanager:
     def login(self, init_login, init_password):
         user = User.query.filter_by(username=init_login).first()
         if user and pbkdf2_sha256.verify(init_password, user.password):
-            login_user(user, remember=True)
             return user.username, user.password, user.id, 200
 
         user = User.query.filter_by(email=init_login).first()
         if user and pbkdf2_sha256.verify(init_password, user.password):
-            login_user(user, remember=True)
-            return user.username, user.password, user.id, 200
+            return user.email, user.password, user.id, 200
 
         return "", "", "", 401
 

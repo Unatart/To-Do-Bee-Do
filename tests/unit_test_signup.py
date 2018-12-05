@@ -5,6 +5,7 @@ from utils import *
 from unittest.mock import MagicMock
 from app import app
 
+
 class SignUpTests(unittest.TestCase):
     def setUp(self):
         self.DBmanager_create_user = db_manager.create_user

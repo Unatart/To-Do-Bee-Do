@@ -13,7 +13,9 @@ app.config.from_object('config')
 
 bootstrap = Bootstrap(app)
 db = SQLAlchemy(app)
-
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
+db.drop_all()
+db.create_all()
+#
+# login_manager = LoginManager()
+# login_manager.init_app(app)
+# login_manager.login_view = 'login'
