@@ -9,6 +9,24 @@
 4. Поменить заметку как выполненную\ невыполненную
 5. Удалить заметку 
 
+Вид данных:
+    
+  - Username  
+   
+        4 < username.len() < 20      
+        for key in username:
+            if not str(key).isalpha() and key not in "_." and not '0' <= key <= '9':
+                return False
+        return True
+        
+  - Email
+  
+        email_validator
+        
+  - Password
+  
+        4 < password.len() < 20
+
 Приложение написано на языке программирования Python3
 
 В качестве сервера используется Flask, в качестве базы данных SQLite вместе с ORM - SQLAlchemy 
