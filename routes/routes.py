@@ -43,10 +43,10 @@ def signup():
             if status_code == 409:
                 if error_identity == 'login':
                     return render_template('signup.html', form=form,
-                                           error='User with such username exist'), status.HTTP_409_CONFLICT
+                                           error='Incorrect username'), status.HTTP_409_CONFLICT
                 if error_identity == 'email':
                     return render_template('signup.html', form=form,
-                                           error='User with such email exist'), status.HTTP_409_CONFLICT
+                                           error='Incorrect email'), status.HTTP_409_CONFLICT
                 if error_identity == 'password':
                     return render_template('signup.html', form=form,
                                            error='Incorrect password'), status.HTTP_409_CONFLICT
