@@ -4,7 +4,7 @@ from flask_api import status
 from config import app
 from DBmanager.DBmanager import *
 import sqlalchemy.exc
-from valid_forms.valid_forms import valid_login, valid_signup
+from get_forms.get_forms import get_login, get_signup
 
 
 # START APP
@@ -19,14 +19,14 @@ def index():
 # AUTH METHODS
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    status_code, username, password, form = valid_login()
+    status_code, username, password, form = get_login()
 
     if status_code == 200:
         try:
             username, password, id, status_code = db_manager.login(username, password)
             if status_code == 200:
                 session['id'] = id
-                return redirect(url_for('board')), status.HTTP_200_OK
+                return redirect(url_for('board'))
             elif status_code == 401:
                 return render_template('login.html', error='Invalid data, try again or SignUp',
                                        form=form), status.HTTP_401_UNAUTHORIZED
@@ -39,7 +39,7 @@ def login():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    status_code, username, email, password, form = valid_signup()
+    status_code, username, email, password, form = get_signup()
 
     if status_code == 200:
         try:
@@ -52,9 +52,12 @@ def signup():
                 if error_identity == 'email':
                     return render_template('signup.html', form=form,
                                            error='User with such email exist'), status.HTTP_409_CONFLICT
+                if error_identity == 'password':
+                    return render_template('signup.html', form=form,
+                                           error='Incorrect password'), status.HTTP_409_CONFLICT
             else:
                 session['id'] = id
-                return redirect(url_for('board')), status.HTTP_200_OK
+                return redirect(url_for('board'))
 
         except sqlalchemy.exc.SQLAlchemyError:
             return 500

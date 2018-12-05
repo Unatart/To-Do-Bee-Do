@@ -9,27 +9,23 @@ USERNAME_REGEX = re.compile(r'^\S+$')
 
 
 class LoginForm(FlaskForm):
-    username = StringField('username', validators=[InputRequired(), Length(min=4, max=20)])
-    password = PasswordField('password', validators=[InputRequired(), Length(min=4, max=20)])
+    username = StringField('username')
+    password = PasswordField('password')
     remember = BooleanField('remember me')
 
 
 class RegisterForm(FlaskForm):
-    email = StringField('email', validators=[InputRequired(), Email(message='Invalid email'), Length(max=50)])
-    username = StringField('username', validators=[InputRequired(),
-                                                   Length(min=4, max=20),
-                                                   Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
-                                                          'Usernames must have only letters, '
-                                                          'numbers, dots or underscores')])
+    email = StringField('email')
+    username = StringField('username')
     # password = PasswordField('password', validators=[InputRequired(), Length(min=6, max=20)])
-    password = PasswordField('password', validators=[InputRequired(), Length(min=4, max=20)])
+    password = PasswordField('password')
 
 
-def validate_email(self, field):
-    if User.query.filter_by(email=field.data).first():
-        raise ValidationError('Email already registered.')
-
-
-def validate_username(self, field):
-    if User.query.filter_by(username=field.data).first():
-        raise ValidationError('Username already in use.')
+# def validate_email(self, field):
+#     if User.query.filter_by(email=field.data).first():
+#         raise ValidationError('Email already registered.')
+#
+#
+# def validate_username(self, field):
+#     if User.query.filter_by(username=field.data).first():
+#         raise ValidationError('Username already in use.')
