@@ -1,11 +1,5 @@
 from flask_login import UserMixin
-# from config import login_manager
 from config import db
-
-
-# @login_manager.user_loader
-# def load_user(user_id):
-#     return User.query.get(user_id)
 
 
 class User(UserMixin, db.Model):

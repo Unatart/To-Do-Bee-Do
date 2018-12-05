@@ -120,7 +120,6 @@ def delete(id):
 
 
 @app.route('/board')
-# @login_required
 def board():
     incomplete = ""
     complete = ""

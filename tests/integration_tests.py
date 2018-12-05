@@ -40,6 +40,7 @@ class DBmanager_test(unittest.TestCase):
         assert status_code == 409
         assert error == 'email'
 
+
     def test_login_OK_by_username(self):
         db_manager.create_user(correct_username, correct_email, correct_password)
 
@@ -56,6 +57,7 @@ class DBmanager_test(unittest.TestCase):
 
         assert login == correct_email
         assert status_code == 200
+
 
     def test_login_incorrect_password(self):
         db_manager.create_user(correct_username, correct_email, correct_password)

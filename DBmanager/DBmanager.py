@@ -30,7 +30,6 @@ class DBmanager:
                             password=hashed_password)
             db.session.add(new_user)
             db.session.commit()
-            # login_user(new_user, remember=False)
 
         else:
             return "", "", "", "", 409, "password"
