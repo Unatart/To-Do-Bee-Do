@@ -21,22 +21,22 @@
 - возвращает код 401 UNAUTHORIZED если форма заполнена с ошибками, либо в базе нет такой записи (НЕУДАЧА)
 
 
-    @app.route('/login', methods=['GET', 'POST'])
-    def login():
-    status_code, username, password, form = get_login()   
-        if status_code == 200:
-            try:
-                username, password, id, status_code = db_manager.login(username, password)
-                if status_code == 200:
-                    session['id'] = id
-                    return redirect(url_for('board'))
-                elif status_code == 401:
-                    return render_template('login.html', error='Invalid data, try again or SignUp',
-                                           form=form), status.HTTP_401_UNAUTHORIZED
-    
-            except sqlalchemy.exc.SQLAlchemyError:
-                abort(500)
-    
+        @app.route('/login', methods=['GET', 'POST'])
+        def login():
+        status_code, username, password, form = get_login()   
+            if status_code == 200:
+                try:
+                    username, password, id, status_code = db_manager.login(username, password)
+                    if status_code == 200:
+                        session['id'] = id
+                        return redirect(url_for('board'))
+                    elif status_code == 401:
+                        return render_template('login.html', error='Invalid data, try again or SignUp',
+                                               form=form), status.HTTP_401_UNAUTHORIZED
+
+                except sqlalchemy.exc.SQLAlchemyError:
+                    abort(500)
+
         return render_template('login.html', form=form), status.HTTP_200_OK
 
 
@@ -47,24 +47,24 @@
 - возвращает код 409 CONFLICT если форма заполнена с ошибками, либо в базе уже существует запись с таким username или email (НЕУДАЧА)
 
 
-    @app.route('/signup', methods=['GET', 'POST'])
-    def signup():
-        status_code, username, email, password, form = get_signup()
-        if status_code == 200:
-                username, email, password, id, status_code, error_identity = \
-                    db_manager.create_user(username, email, password)
-                if status_code == 409:
-                    if error_identity == 'login':
-                        return render_template('signup.html', form=form,
-                                               error='Incorrect username'), status.HTTP_409_CONFLICT
-                    if error_identity == 'email':
-                        return render_template('signup.html', form=form,
-                                               error='Incorrect email'), status.HTTP_409_CONFLICT
-                    if error_identity == 'password':
-                        return render_template('signup.html', form=form,
-                                               error='Incorrect password'), status.HTTP_409_CONFLICT
-                else:
-                    session['id'] = id
-                    return redirect(url_for('board'))
-    
+        @app.route('/signup', methods=['GET', 'POST'])
+        def signup():
+            status_code, username, email, password, form = get_signup()
+            if status_code == 200:
+                    username, email, password, id, status_code, error_identity = \
+                        db_manager.create_user(username, email, password)
+                    if status_code == 409:
+                        if error_identity == 'login':
+                            return render_template('signup.html', form=form,
+                                                   error='Incorrect username'), status.HTTP_409_CONFLICT
+                        if error_identity == 'email':
+                            return render_template('signup.html', form=form,
+                                                   error='Incorrect email'), status.HTTP_409_CONFLICT
+                        if error_identity == 'password':
+                            return render_template('signup.html', form=form,
+                                                   error='Incorrect password'), status.HTTP_409_CONFLICT
+                    else:
+                        session['id'] = id
+                        return redirect(url_for('board'))
+
         return render_template('signup.html', form=form), status.HTTP_200_OK
