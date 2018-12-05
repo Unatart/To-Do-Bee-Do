@@ -11,6 +11,7 @@ incorrect_username_short = 'Nas'
 incorrect_username_long = 'qwertyuiopasdfghjklzxcvbnm'
 incorrect_username_bad_characters = 'a!б.lol'
 
+incorrect_email_empty = ''
 incorrect_email_no_dog = 'nikita97'
 incorrect_email_only_dog = 'nikita97@'
 incorrect_email_no_domen = 'nikita97@mail'

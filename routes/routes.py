@@ -34,7 +34,7 @@ def login():
         except sqlalchemy.exc.SQLAlchemyError:
             abort(500)
 
-    return render_template('login.html', form=form), status.HTTP_401_UNAUTHORIZED
+    return render_template('login.html', form=form), status.HTTP_200_OK
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -62,7 +62,7 @@ def signup():
         except sqlalchemy.exc.SQLAlchemyError:
             return 500
 
-    return render_template('signup.html', form=form), status.HTTP_400_BAD_REQUEST
+    return render_template('signup.html', form=form), status.HTTP_200_OK
 
 
 # FOR TODOLIST

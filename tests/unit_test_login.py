@@ -127,6 +127,3 @@ class LoginTests(unittest.TestCase):
         assert res.status_code == 401
 
 
-if __name__ == '__main__':
-    unittest.main()
-

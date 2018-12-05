@@ -12,7 +12,7 @@ def get_login():
 
         return status_code, username, password, form
 
-    return 401, "", "", form
+    return 200, "", "", form
 
 
 def get_signup():
@@ -26,4 +26,4 @@ def get_signup():
 
         return status_code, username, email, password, form
 
-    return 401, "", "", form
+    return 200, "", "", form
