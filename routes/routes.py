@@ -129,19 +129,33 @@ def delete_user(id):
     return redirect(url_for('admin_board'))
 
 
+@app.route('/grant_rights/<id>')
+def grant_rights(id):
+    db_manager.grant_rights(id)
+    return redirect(url_for('admin_board'))
+
+
+@app.route('/delete_rights/<id>')
+def delete_rights(id):
+    db_manager.delete_rights(id)
+    return redirect(url_for('admin_board'))
+
+
 @app.route('/board')
 def board():
     incomplete = ""
     complete = ""
+    access = False
     if 'id' in session:
         user_id = session['id']
         user, status_code = db_manager.check_user(user_id)
         if status_code == 200:
             incomplete, complete = db_manager.get_todo(user_id)
+            access = db_manager.check_rights(user_id)
     else:
         return redirect(url_for('index'))
 
-    return render_template('board.html', incomplete=incomplete, complete=complete, title='Board')
+    return render_template('board.html', incomplete=incomplete, complete=complete, access=access, title='Board')
 
 
 @app.route('/admin_board')

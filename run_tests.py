@@ -5,31 +5,30 @@ from tests.system_test_login import sysLoginTest
 from tests.integration_tests import DBmanager_test
 
 import unittest
-import sys
+import filecmp
+
 
 if __name__ == "__main__":
     runner = unittest.TextTestRunner()
-    if len(sys.argv) == 1:
+
+    routes_bool = filecmp.cmp('/home/unatart/TodoList/routes/routes.py', '/home/unatart/git/ToDoList/routes/routes.py')
+    db_bool = filecmp.cmp('/home/unatart/TodoList/DBmanager/DBmanager.py', '/home/unatart/git/ToDoList/DBmanager/DBmanager.py')
+
+    if routes_bool == False:
         runner.run(unittest.TestSuite((
             unittest.makeSuite(SignUpTests),
             unittest.makeSuite(LoginTests),
+            unittest.makeSuite(sysSignUpTest),
+            unittest.makeSuite(sysLoginTest)
+        )))
+
+    if db_bool == False:
+        runner.run(unittest.TestSuite((
             unittest.makeSuite(sysSignUpTest),
             unittest.makeSuite(sysLoginTest),
             unittest.makeSuite(DBmanager_test)
         )))
 
-    elif sys.argv[1] == 'integration':
-        runner.run(unittest.makeSuite(DBmanager_test))
-
-    elif sys.argv[1] == 'system':
-        runner.run(unittest.TestSuite((
-            unittest.makeSuite(sysSignUpTest),
-            unittest.makeSuite(sysLoginTest))))
-
-    elif sys.argv[1] == 'unit':
-        runner.run(unittest.TestSuite((
-            unittest.makeSuite(SignUpTests),
-            unittest.makeSuite(LoginTests))))
 
 
 

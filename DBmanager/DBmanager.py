@@ -28,7 +28,8 @@ class DBmanager:
             new_user = User(username=init_login,
                             email=init_email,
                             password=hashed_password,
-                            last_visit=datetime.datetime.now())
+                            last_visit=datetime.datetime.now(),
+                            access_rights=False)
             db.session.add(new_user)
             db.session.commit()
 
@@ -93,8 +94,21 @@ class DBmanager:
 
     def get_all_users(self):
         users = User.query.all()
-
         return users
+
+    def grant_rights(self, user_id):
+        user = User.query.filter_by(id=user_id).first()
+        user.access_rights = True
+        db.session.commit()
+
+    def delete_rights(self, user_id):
+        user = User.query.filter_by(id=user_id).first()
+        user.access_rights = False
+        db.session.commit()
+
+    def check_rights(self, user_id):
+        user = User.query.filter_by(id=user_id).first()
+        return user.access_rights
 
 
 db_manager = DBmanager()
