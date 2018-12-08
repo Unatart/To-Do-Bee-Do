@@ -19,6 +19,7 @@ def login():
 
     if username == 'admin' and password == 'admin':
         users = db_manager.get_all_users()
+        session['id'] = 777
         return render_template('admin_board.html', users = users)
 
     if status_code == 200:
@@ -160,8 +161,19 @@ def board():
 
 @app.route('/admin_board')
 def admin_board():
-    users = db_manager.get_all_users()
-    return render_template('admin_board.html', users = users)
+    if 'id' in session:
+        user_id = session['id']
+        if user_id == 777:
+            users = db_manager.get_all_users()
+            return render_template('admin_board.html', users=users)
+        user, status_code = db_manager.check_user(user_id)
+        if status_code == 200:
+            access = db_manager.check_rights(user_id)
+            if access == True:
+                users = db_manager.get_all_users()
+                return render_template('admin_board.html', users = users)
+
+    return redirect(url_for('board')), status.HTTP_401_UNAUTHORIZED
 
 
 # LOGOUT
