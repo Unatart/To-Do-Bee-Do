@@ -37,6 +37,14 @@ class sysAdminTest(unittest.TestCase):
             res = c.get('/admin_board')
             assert res.status_code == 200
 
+    def test_admin_to_board(self):
+        with app.test_client() as c:
+            res = c.post('/login', data={'username': 'admin',
+                                         'password': 'admin'})
+            assert res.status_code == 200
+            res = c.get('/board')
+            assert res.status_code == 401
+
 
     def test_admin_delete_user(self):
         with app.test_client() as c:

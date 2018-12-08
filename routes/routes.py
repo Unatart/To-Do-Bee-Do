@@ -149,6 +149,8 @@ def board():
     access = False
     if 'id' in session:
         user_id = session['id']
+        if user_id == 777:
+            return redirect(url_for('index')), status.HTTP_401_UNAUTHORIZED
         user, status_code = db_manager.check_user(user_id)
         if status_code == 200:
             incomplete, complete = db_manager.get_todo(user_id)

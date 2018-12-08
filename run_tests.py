@@ -4,6 +4,7 @@ from tests.system_test_signup import sysSignUpTest
 from tests.system_test_login import sysLoginTest
 from tests.integration_tests import DBmanager_test
 from tests.system_test_admin import sysAdminTest
+from tests.system_test_todo import sysTodoTest
 
 import unittest
 import filecmp
@@ -16,7 +17,6 @@ if __name__ == "__main__":
                               '/home/unatart/git/ToDoList/routes/routes.py')
     db_bool = filecmp.cmp('/home/unatart/TodoList/DBmanager/DBmanager.py',
                           '/home/unatart/git/ToDoList/DBmanager/DBmanager.py')
-
     int_bool = filecmp.cmp('/home/unatart/TodoList/tests/integration_tests.py',
                            '/home/unatart/git/ToDoList/tests/integration_tests.py')
     sys_login = filecmp.cmp('/home/unatart/TodoList/tests/system_test_login.py',
@@ -29,6 +29,8 @@ if __name__ == "__main__":
                             '/home/unatart/git/ToDoList/tests/unit_test_signup.py')
     admin = filecmp.cmp('/home/unatart/TodoList/tests/system_test_admin.py',
                         '/home/unatart/git/ToDoList/tests/system_test_admin.py')
+    todo = filecmp.cmp('/home/unatart/TodoList/tests/system_test_todo.py',
+                        '/home/unatart/git/ToDoList/tests/system_test_todo.py')
 
     if routes_bool == False:
         print('Run tests for routes.py: \n')
@@ -37,7 +39,8 @@ if __name__ == "__main__":
             unittest.makeSuite(LoginTests),
             unittest.makeSuite(sysSignUpTest),
             unittest.makeSuite(sysLoginTest),
-            unittest.makeSuite(sysAdminTest)
+            unittest.makeSuite(sysAdminTest),
+            unittest.makeSuite(sysTodoTest)
         )))
 
     if db_bool == False:
@@ -46,7 +49,8 @@ if __name__ == "__main__":
             unittest.makeSuite(sysSignUpTest),
             unittest.makeSuite(sysLoginTest),
             unittest.makeSuite(sysAdminTest),
-            unittest.makeSuite(DBmanager_test)
+            unittest.makeSuite(sysTodoTest),
+            unittest.makeSuite(DBmanager_test),
         )))
 
     if int_bool == False:
@@ -83,6 +87,12 @@ if __name__ == "__main__":
         print('Run system tests for admin: \n')
         runner.run(unittest.TestSuite((
             unittest.makeSuite(sysAdminTest)
+        )))
+
+    if todo == False:
+        print('Run system tests for todo: \n')
+        runner.run(unittest.TestSuite((
+           unittest.makeSuite(sysTodoTest)
         )))
 
 
