@@ -17,6 +17,10 @@ def index():
 def login():
     status_code, username, password, form = get_login()
 
+    if username == 'admin' and password == 'admin':
+        users = db_manager.get_all_users()
+        return render_template('admin_board.html', users = users)
+
     if status_code == 200:
         try:
             username, password, id, status_code = db_manager.login(username, password)
@@ -119,6 +123,12 @@ def delete(id):
     return redirect(url_for('board'))
 
 
+@app.route('/delete_user/<id>')
+def delete_user(id):
+    db_manager.delete_user(id)
+    return redirect(url_for('admin_board'))
+
+
 @app.route('/board')
 def board():
     incomplete = ""
@@ -132,6 +142,12 @@ def board():
         return redirect(url_for('index'))
 
     return render_template('board.html', incomplete=incomplete, complete=complete, title='Board')
+
+
+@app.route('/admin_board')
+def admin_board():
+    users = db_manager.get_all_users()
+    return render_template('admin_board.html', users = users)
 
 
 # LOGOUT

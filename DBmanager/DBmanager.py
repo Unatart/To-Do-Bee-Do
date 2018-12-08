@@ -1,8 +1,8 @@
 from models.models import User, Todo
 from config import db
 from passlib.hash import pbkdf2_sha256
-from flask_login import login_user
 from validator.validator import Validator
+import datetime
 
 
 def generate_password_hash(password):
@@ -27,7 +27,8 @@ class DBmanager:
             hashed_password = generate_password_hash(init_password)
             new_user = User(username=init_login,
                             email=init_email,
-                            password=hashed_password)
+                            password=hashed_password,
+                            last_visit=datetime.datetime.now())
             db.session.add(new_user)
             db.session.commit()
 
@@ -42,10 +43,14 @@ class DBmanager:
     def login(self, init_login, init_password):
         user = User.query.filter_by(username=init_login).first()
         if user and pbkdf2_sha256.verify(init_password, user.password):
+            user.last_visit=datetime.datetime.now()
+            db.session.commit()
             return user.username, user.password, user.id, 200
 
         user = User.query.filter_by(email=init_login).first()
         if user and pbkdf2_sha256.verify(init_password, user.password):
+            user.last_visit = datetime.datetime.now()
+            db.session.commit()
             return user.email, user.password, user.id, 200
 
         return "", "", "", 401
@@ -57,24 +62,20 @@ class DBmanager:
 
         return "", 403
 
-
     def create_todo(self, init_text, user_id):
         new_todo = Todo(text=init_text, complete=False, creator_id=user_id)
         db.session.add(new_todo)
         db.session.commit()
-
 
     def incomplete_todo(self, init_id):
         todo = Todo.query.filter_by(id=int(init_id)).first()
         todo.complete = False
         db.session.commit()
 
-
     def complete_todo(self, init_id):
         todo = Todo.query.filter_by(id=int(init_id)).first()
         todo.complete = True
         db.session.commit()
-
 
     def delete_todo(self, init_id):
         Todo.query.filter_by(id=init_id).delete()
@@ -85,6 +86,15 @@ class DBmanager:
         complete = Todo.query.filter_by(creator_id=init_user_id, complete=True).all()
 
         return incomplete, complete
+
+    def delete_user(self, user_id):
+        User.query.filter_by(id=user_id).delete()
+        db.session.commit()
+
+    def get_all_users(self):
+        users = User.query.all()
+
+        return users
 
 
 db_manager = DBmanager()
