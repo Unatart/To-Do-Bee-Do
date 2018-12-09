@@ -13,6 +13,8 @@ import filecmp
 if __name__ == "__main__":
     runner = unittest.TextTestRunner()
 
+    all = True
+
     routes_bool = filecmp.cmp('/home/unatart/TodoList/routes/routes.py',
                               '/home/unatart/git/ToDoList/routes/routes.py')
     db_bool = filecmp.cmp('/home/unatart/TodoList/DBmanager/DBmanager.py',
@@ -31,6 +33,18 @@ if __name__ == "__main__":
                         '/home/unatart/git/ToDoList/tests/system_test_admin.py')
     todo = filecmp.cmp('/home/unatart/TodoList/tests/system_test_todo.py',
                         '/home/unatart/git/ToDoList/tests/system_test_todo.py')
+
+    if all == True:
+        print('Run all tests: \n')
+        runner.run(unittest.TestSuite((
+            unittest.makeSuite(SignUpTests),
+            unittest.makeSuite(LoginTests),
+            unittest.makeSuite(sysSignUpTest),
+            unittest.makeSuite(sysLoginTest),
+            unittest.makeSuite(sysAdminTest),
+            unittest.makeSuite(sysTodoTest),
+            unittest.makeSuite(DBmanager_test)
+        )))
 
     if routes_bool == False:
         print('Run tests for routes.py: \n')

@@ -11,6 +11,13 @@ class sysTodoTest(unittest.TestCase):
     def tearDown(self):
         db.drop_all()
 
+    def test_noone_to_todo(self):
+        with app.test_client() as c:
+            res = c.post('/login', data={'username': incorrect_username_empty,
+                                         'password': incorrect_password_empty})
+
+            assert res.status_code == 401
+
     def test_add_todo(self):
         with app.test_client() as c:
             c.post('/signup', data={'username': correct_username,

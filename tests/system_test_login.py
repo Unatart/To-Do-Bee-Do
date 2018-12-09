@@ -120,6 +120,28 @@ class sysLoginTest(unittest.TestCase):
 
             assert res.status_code == 401
 
+    def test_logout_admin(self):
+        with app.test_client() as c:
+            res = c.post('/login', data={'username': 'admin',
+                                         'password': 'admin'})
+            assert res.status_code == 200
+
+            res = c.get('/logout')
+            assert res.status_code == 302
+
+    def test_logout_user(self):
+        with app.test_client() as c:
+            c.post('/signup', data={'username': correct_username,
+                                    'email': correct_email,
+                                    'password': correct_password})
+            res = c.post('/login', data={'username': correct_username,
+                                         'password': correct_password})
+
+            assert res.status_code == 302
+
+            res = c.get('/logout')
+            assert res.status_code == 302
+
 
 
 

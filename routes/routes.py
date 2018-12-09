@@ -23,17 +23,13 @@ def login():
         return render_template('admin_board.html', users = users)
 
     if status_code == 200:
-        try:
-            username, password, id, status_code = db_manager.login(username, password)
-            if status_code == 200:
-                session['id'] = id
-                return redirect(url_for('board'))
-            elif status_code == 401:
-                return render_template('login.html', error='Invalid data, try again or SignUp',
-                                       form=form), status.HTTP_401_UNAUTHORIZED
-
-        except sqlalchemy.exc.SQLAlchemyError:
-            abort(500)
+        username, password, id, status_code = db_manager.login(username, password)
+        if status_code == 200:
+            session['id'] = id
+            return redirect(url_for('board'))
+        elif status_code == 401:
+            return render_template('login.html', error='Invalid data, try again or SignUp',
+                                   form=form), status.HTTP_401_UNAUTHORIZED
 
     return render_template('login.html', form=form), status.HTTP_200_OK
 
@@ -65,61 +61,46 @@ def signup():
 # FOR TODOLIST
 @app.route('/add', methods=['POST'])
 def add():
-    try:
-        if 'id' in session:
-            id = session['id']
-            user, status_code = db_manager.check_user(id)
-            if status_code == 200:
-                todo_text = request.form['todoitem']
-                if todo_text is not '':
-                    db_manager.create_todo(todo_text, user.id)
-
-    except sqlalchemy.exc.SQLAlchemyError:
-        return 500
+    if 'id' in session:
+        id = session['id']
+        user, status_code = db_manager.check_user(id)
+        if status_code == 200:
+            todo_text = request.form['todoitem']
+            if todo_text is not '':
+                db_manager.create_todo(todo_text, user.id)
 
     return redirect(url_for('board'))
 
 
 @app.route('/complete/<id>')
 def complete(id):
-    try:
-        if 'id' in session:
-            user_id = session['id']
-            user, status_code = db_manager.check_user(user_id)
-            if status_code == 200:
-                db_manager.complete_todo(id)
-
-    except sqlalchemy.exc.SQLAlchemyError:
-        return 500
+    if 'id' in session:
+        user_id = session['id']
+        user, status_code = db_manager.check_user(user_id)
+        if status_code == 200:
+            db_manager.complete_todo(id)
 
     return redirect(url_for('board'))
 
 
 @app.route('/incomplete/<id>')
 def incomplete(id):
-    try:
-        if 'id' in session:
-            user_id = session['id']
-            user, status_code = db_manager.check_user(user_id)
-            if status_code == 200:
-                db_manager.incomplete_todo(id)
-    except sqlalchemy.exc.SQLAlchemyError:
-        return 500
+    if 'id' in session:
+        user_id = session['id']
+        user, status_code = db_manager.check_user(user_id)
+        if status_code == 200:
+            db_manager.incomplete_todo(id)
 
     return redirect(url_for('board'))
 
 
 @app.route('/delete/<id>')
 def delete(id):
-    try:
-        if 'id' in session:
-            user_id = session['id']
-            user, status_code = db_manager.check_user(user_id)
-            if status_code == 200:
-                db_manager.delete_todo(id)
-
-    except sqlalchemy.exc.SQLAlchemyError:
-        return 500
+    if 'id' in session:
+        user_id = session['id']
+        user, status_code = db_manager.check_user(user_id)
+        if status_code == 200:
+            db_manager.delete_todo(id)
 
     return redirect(url_for('board'))
 
